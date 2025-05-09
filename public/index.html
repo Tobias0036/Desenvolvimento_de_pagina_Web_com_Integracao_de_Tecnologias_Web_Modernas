@@ -1,0 +1,136 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educação Financeira - Metas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Educação Financeira</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="index.html">Metas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="chat.html">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="budget.html">Orçamento</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-custom">
+        <div class="row">
+            <div class="col-md-5 form-container">
+                <h2>💰 Definir Meta Financeira</h2>
+                <p>Crie metas para alcançar seus sonhos financeiros, como comprar uma casa.</p>
+                <form id="metaForm">
+                    <div class="mb-3">
+                        <label for="metaDescricao" class="form-label">Meta</label>
+                        <input type="text" class="form-control" id="metaDescricao" placeholder="Ex: Comprar casa" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="metaValor" class="form-label">Valor (MZN)</label>
+                        <input type="number" step="0.01" class="form-control" id="metaValor" placeholder="Ex: 50000.00" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h3>💡 Dicas Financeiras</h3>
+                        <div id="dicasContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function carregarDicas() {
+            try {
+                const resposta = await fetch('/api/dicas');
+                const dicas = await resposta.json();
+                document.getElementById('dicasContainer').innerHTML = dicas.map(dica => `
+                    <h5>${dica.titulo}</h5>
+                    <p>${dica.texto}</p>
+                `).join('');
+            } catch (erro) {
+                document.getElementById('dicasContainer').innerHTML = '<p>Erro ao carregar dicas!</p>';
+            }
+        }
+
+        document.getElementById('metaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const descricao = document.getElementById('metaDescricao').value;
+            const valor = document.getElementById('metaValor').value;
+            try {
+                const resposta = await fetch('/api/metas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ descricao, valor })
+                });
+                const resultado = await resposta.json();
+                alert(resultado.message);
+                document.getElementById('metaForm').reset();
+            } catch (erro) {
+                alert('Erro ao enviar meta!');
+            }
+        });
+
+        carregarDicas();
+    </script>
+</body>
+</html>

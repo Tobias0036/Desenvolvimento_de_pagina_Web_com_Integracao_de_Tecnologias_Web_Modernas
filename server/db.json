@@ -1,0 +1,107 @@
+{
+  "perguntas": [
+    {
+      "id": 1,
+      "pergunta": "o que é educação financeira?",
+      "resposta": "É o processo de aprender a gerir o dinheiro, incluindo poupança, investimentos e controlo de despesas."
+    },
+    {
+      "id": 2,
+      "pergunta": "como fazer um orçamento?",
+      "resposta": "Liste receitas e despesas, categorize-as e ajuste para gastar menos do que ganha."
+    },
+    {
+      "id": 3,
+      "pergunta": "o que é poupança?",
+      "resposta": "É guardar parte da renda para emergências ou objetivos futuros."
+    },
+    {
+      "id": 4,
+      "pergunta": "o que são investimentos?",
+      "resposta": "São aplicações de dinheiro em ativos, como ações, para gerar retorno financeiro."
+    },
+    {
+      "id": 5,
+      "pergunta": "como evitar dívidas?",
+      "resposta": "Gaste dentro do orçamento, use crédito com moderação e pague contas em dia."
+    },
+    {
+      "id": 6,
+      "pergunta": "o que é juro composto?",
+      "resposta": "É o juro calculado sobre o capital inicial e os juros acumulados, crescendo com o tempo."
+    }
+  ],
+  "mensagens": [
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "oi",
+      "data": "2025-05-08T15:05:03.706Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "o que sao financas",
+      "data": "2025-05-08T15:05:21.564Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "oi",
+      "data": "2025-05-08T15:05:36.671Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "funciona",
+      "data": "2025-05-08T15:05:48.328Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "conectar se ao outro utilizador",
+      "data": "2025-05-08T15:06:08.742Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "kmk",
+      "data": "2025-05-09T03:48:40.869Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "ola",
+      "data": "2025-05-09T03:48:51.886Z"
+    },
+    {
+      "utilizador": "desconhecido",
+      "mensagem": "bom dia",
+      "data": "2025-05-09T03:48:56.845Z"
+    }
+  ],
+  "orcamentos": [
+    {
+      "categoria": "poupanca",
+      "valor": "1000",
+      "id": 1
+    },
+    {
+      "categoria": "poupanca",
+      "valor": "1000",
+      "id": 2
+    }
+  ],
+  "metas": [
+    {
+      "descricao": "comprar carro",
+      "valor": "2000",
+      "id": 1
+    }
+  ],
+  "dicas": [
+    {
+      "id": 1,
+      "titulo": "Planeie seu orçamento",
+      "texto": "Defina metas claras e categorize suas despesas."
+    },
+    {
+      "id": 2,
+      "titulo": "Poupe regularmente",
+      "texto": "Guarde pelo menos 10% da sua renda mensal."
+    }
+  ]
+}
