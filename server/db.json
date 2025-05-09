@@ -33,44 +33,9 @@
   ],
   "mensagens": [
     {
-      "utilizador": "desconhecido",
-      "mensagem": "oi",
-      "data": "2025-05-08T15:05:03.706Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "o que sao financas",
-      "data": "2025-05-08T15:05:21.564Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "oi",
-      "data": "2025-05-08T15:05:36.671Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "funciona",
-      "data": "2025-05-08T15:05:48.328Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "conectar se ao outro utilizador",
-      "data": "2025-05-08T15:06:08.742Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "kmk",
-      "data": "2025-05-09T03:48:40.869Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "ola",
-      "data": "2025-05-09T03:48:51.886Z"
-    },
-    {
-      "utilizador": "desconhecido",
-      "mensagem": "bom dia",
-      "data": "2025-05-09T03:48:56.845Z"
+      "nome": "Anónimo",
+      "mensagem": "Saiu do chat",
+      "data": "2025-05-09T14:44:22.227Z"
     }
   ],
   "orcamentos": [
@@ -81,17 +46,26 @@
     },
     {
       "categoria": "poupanca",
-      "valor": "1000",
+      "valor": 1000,
       "id": 2
-    }
-  ],
-  "metas": [
+    },
     {
-      "descricao": "comprar carro",
-      "valor": "2000",
-      "id": 1
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 3
+    },
+    {
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 4
+    },
+    {
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 5
     }
   ],
+  "metas": [],
   "dicas": [
     {
       "id": 1,
