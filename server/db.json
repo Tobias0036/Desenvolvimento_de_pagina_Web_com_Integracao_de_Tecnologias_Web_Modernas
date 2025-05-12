@@ -71,6 +71,111 @@
       "utilizador": "desconhecido",
       "mensagem": "bom dia",
       "data": "2025-05-09T03:48:56.845Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "Saiu do chat",
+      "data": "2025-05-10T06:28:18.314Z"
+    },
+    {
+      "nome": "Anónimo",
+      "mensagem": "Saiu do chat",
+      "data": "2025-05-10T10:35:39.263Z"
+    },
+    {
+      "nome": "Responsável",
+      "mensagem": "Entrou como Responsável",
+      "data": "2025-05-11T17:53:16.747Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "Entrou no chat",
+      "data": "2025-05-11T17:53:42.775Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:53:48.591Z"
+    },
+    {
+      "nome": "Responsável",
+      "mensagem": "bom dia tobias como e que estas?",
+      "data": "2025-05-11T17:54:09.762Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:54:32.407Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:54:34.696Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:54:37.879Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:54:40.339Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:54:42.433Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "bom dia",
+      "data": "2025-05-11T17:54:45.613Z"
+    },
+    {
+      "nome": "Responsável",
+      "mensagem": "oi",
+      "data": "2025-05-11T17:55:57.295Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:17.016Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:17.828Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:18.682Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:19.527Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:20.349Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:21.165Z"
+    },
+    {
+      "nome": "tobias",
+      "mensagem": "o que é educação financeira?",
+      "data": "2025-05-11T17:57:29.720Z"
+    },
+    {
+      "nome": "Responsável",
+      "mensagem": "relaxa amigo",
+      "data": "2025-05-11T17:57:59.196Z"
     }
   ],
   "orcamentos": [
@@ -83,6 +188,16 @@
       "categoria": "poupanca",
       "valor": "1000",
       "id": 2
+    },
+    {
+      "categoria": "poupanca",
+      "valor": "1000",
+      "id": 3
+    },
+    {
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 4
     }
   ],
   "metas": [
@@ -90,6 +205,11 @@
       "descricao": "comprar carro",
       "valor": "2000",
       "id": 1
+    },
+    {
+      "descricao": "comprar carro",
+      "valor": "22",
+      "id": 2
     }
   ],
   "dicas": [

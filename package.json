@@ -1,11 +1,14 @@
 {
   "name": "meu-app",
   "version": "1.0.0",
+  "description": "Aplicação web de educação financeira",
+  "main": "server/app.js",
   "scripts": {
     "start": "node server/app.js"
   },
   "dependencies": {
-    "ws": "^8.18.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "uuid": "^10.0.0",
+    "ws": "^8.18.2"
   }
 }
