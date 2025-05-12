@@ -96,17 +96,24 @@
 
             ws.onopen = () => {
                 console.log('Conectado ao WebSocket para orçamentos.');
+<<<<<<< HEAD
                 loadBudgets();
+=======
+                loadBudgets(); // Carrega orçamentos iniciais
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
             };
 
             ws.onmessage = (evento) => {
                 const data = JSON.parse(evento.data);
                 if (data.tipo === 'orcamento') {
                     addBudgetToTable(data.orcamento);
+<<<<<<< HEAD
                 } else if (data.tipo === 'orcamento_atualizado') {
                     updateBudgetInTable(data.orcamento);
                 } else if (data.tipo === 'orcamento_deletado') {
                     removeBudgetFromTable(data.id);
+=======
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
                 }
             };
 
@@ -125,7 +132,11 @@
                 const budgets = await response.json();
                 const list = document.getElementById('budgetList');
                 list.innerHTML = budgets.map(b => `
+<<<<<<< HEAD
                     <tr id="budget-${b.id}">
+=======
+                    <tr>
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
                         <td>${b.id}</td>
                         <td>${b.categoria}</td>
                         <td>${b.valor.toFixed(2)} MZN</td>
@@ -143,7 +154,10 @@
         function addBudgetToTable(budget) {
             const list = document.getElementById('budgetList');
             const row = document.createElement('tr');
+<<<<<<< HEAD
             row.id = `budget-${budget.id}`;
+=======
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
             row.innerHTML = `
                 <td>${budget.id}</td>
                 <td>${budget.categoria}</td>
@@ -155,6 +169,7 @@
             `;
             list.appendChild(row);
         }
+<<<<<<< HEAD
 
         function updateBudgetInTable(budget) {
             const row = document.getElementById(`budget-${budget.id}`);
@@ -177,6 +192,8 @@
                 row.remove();
             }
         }
+=======
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
 
         document.getElementById('budgetForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -195,11 +212,24 @@
                     document.getElementById('budgetForm').reset();
                     document.getElementById('budgetId').value = '';
                     document.getElementById('cancelEdit').style.display = 'none';
+<<<<<<< HEAD
                 } else {
                     console.error('Erro na requisição');
                 }
             } catch (error) {
                 console.error('Erro ao salvar orçamento:', error);
+=======
+                    if (method === 'PUT') {
+                        loadBudgets(); // Recarrega para edição, pois WebSocket só notifica adições
+                    }
+                    alert(id ? 'Orçamento atualizado com sucesso!' : 'Orçamento adicionado com sucesso!');
+                } else {
+                    throw new Error('Erro na requisição');
+                }
+            } catch (error) {
+                alert('Erro ao salvar orçamento!');
+                console.error('Erro:', error);
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
             }
         });
 
@@ -226,11 +256,22 @@
                 const response = await fetch(`/api/orcamentos/${window.budgetToDelete}`, { method: 'DELETE' });
                 if (response.ok) {
                     bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+<<<<<<< HEAD
                 } else {
                     console.error('Erro na requisição');
                 }
             } catch (error) {
                 console.error('Erro ao deletar orçamento:', error);
+=======
+                    loadBudgets(); // Recarrega para exclusão, pois WebSocket só notifica adições
+                    alert('Orçamento deletado com sucesso!');
+                } else {
+                    throw new Error('Erro na requisição');
+                }
+            } catch (error) {
+                alert('Erro ao deletar orçamento!');
+                console.error('Erro:', error);
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
             }
         });
 

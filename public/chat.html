@@ -107,7 +107,11 @@
         function adicionarMensagem(mensagem, tipo) {
             const div = document.createElement('div');
             div.className = `mensagem mensagem-${tipo}`;
+<<<<<<< HEAD
             div.textContent = mensagem.replace(/^(Bot|Outro utilizador|Você|Sistema|Responsável): /, '');
+=======
+            div.textContent = mensagem.replace(/^(Bot|Outro utilizador|Você|Sistema): /, '');
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
             document.getElementById('caixaChat').appendChild(div);
             document.getElementById('caixaChat').scrollTop = document.getElementById('caixaChat').scrollHeight;
         }

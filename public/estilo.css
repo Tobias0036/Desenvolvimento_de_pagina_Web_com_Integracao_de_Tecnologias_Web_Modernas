@@ -57,7 +57,11 @@ body {
     padding: 12px 30px;
 }
 
+<<<<<<< HEAD
 .form-container, .table-container, .chat-container, .admin-container {
+=======
+.form-container, .table-container, .chat-container {
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
     background-color: #F5F5F5;
     padding: 30px;
     border-radius: 15px;

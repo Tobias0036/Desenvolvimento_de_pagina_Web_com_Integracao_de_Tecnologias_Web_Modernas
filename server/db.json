@@ -33,6 +33,7 @@
   ],
   "mensagens": [
     {
+<<<<<<< HEAD
       "utilizador": "desconhecido",
       "mensagem": "oi",
       "data": "2025-05-08T15:05:03.706Z"
@@ -176,6 +177,11 @@
       "nome": "Responsável",
       "mensagem": "relaxa amigo",
       "data": "2025-05-11T17:57:59.196Z"
+=======
+      "nome": "Anónimo",
+      "mensagem": "Saiu do chat",
+      "data": "2025-05-09T14:44:22.227Z"
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
     }
   ],
   "orcamentos": [
@@ -186,9 +192,10 @@
     },
     {
       "categoria": "poupanca",
-      "valor": "1000",
+      "valor": 1000,
       "id": 2
     },
+<<<<<<< HEAD
     {
       "categoria": "poupanca",
       "valor": "1000",
@@ -210,8 +217,25 @@
       "descricao": "comprar carro",
       "valor": "22",
       "id": 2
+=======
+    {
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 3
+    },
+    {
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 4
+    },
+    {
+      "categoria": "poupanca",
+      "valor": 1000,
+      "id": 5
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
     }
   ],
+  "metas": [],
   "dicas": [
     {
       "id": 1,

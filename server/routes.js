@@ -12,9 +12,12 @@ function routes(req, res, clientes) {
     if (url === '/api/dicas' && method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(db.dicas));
+<<<<<<< HEAD
     } else if (url === '/api/metas' && method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(db.metas));
+=======
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
     } else if (url === '/api/metas' && method === 'POST') {
       const meta = JSON.parse(body);
       meta.id = db.metas.length ? db.metas[db.metas.length - 1].id + 1 : 1;
@@ -30,6 +33,10 @@ function routes(req, res, clientes) {
       orcamento.id = db.orcamentos.length ? db.orcamentos[db.orcamentos.length - 1].id + 1 : 1;
       db.orcamentos.push(orcamento);
       fs.writeFileSync(CAMINHO_DB, JSON.stringify(db, null, 2));
+<<<<<<< HEAD
+=======
+      // Notificar clientes via WebSocket
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
       clientes.forEach(cliente => {
         if (cliente.readyState === WebSocket.OPEN) {
           cliente.send(JSON.stringify({
@@ -47,6 +54,7 @@ function routes(req, res, clientes) {
       if (index !== -1) {
         db.orcamentos[index] = { id, ...orcamento };
         fs.writeFileSync(CAMINHO_DB, JSON.stringify(db, null, 2));
+<<<<<<< HEAD
         clientes.forEach(cliente => {
           if (cliente.readyState === WebSocket.OPEN) {
             cliente.send(JSON.stringify({
@@ -55,6 +63,8 @@ function routes(req, res, clientes) {
             }));
           }
         });
+=======
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Orçamento atualizado com sucesso!' }));
       } else {
@@ -67,6 +77,7 @@ function routes(req, res, clientes) {
       if (index !== -1) {
         db.orcamentos.splice(index, 1);
         fs.writeFileSync(CAMINHO_DB, JSON.stringify(db, null, 2));
+<<<<<<< HEAD
         clientes.forEach(cliente => {
           if (cliente.readyState === WebSocket.OPEN) {
             cliente.send(JSON.stringify({
@@ -75,6 +86,8 @@ function routes(req, res, clientes) {
             }));
           }
         });
+=======
+>>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ message: 'Orçamento deletado com sucesso!' }));
       } else {
