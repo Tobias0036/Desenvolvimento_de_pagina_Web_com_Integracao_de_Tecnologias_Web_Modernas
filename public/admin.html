@@ -1,222 +1,327 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Educação Financeira - Administração</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="estilo.css">
+  <!-- Define a codificação de caracteres -->
+  <meta charset="UTF-8">
+  <!-- Configura responsividade -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Administrador</title>
+  <!-- Importa Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Importa estilos personalizados -->
+  <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Educação Financeira</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Close navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Metas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="chat.html">Chat</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="budget.html">Orçamento</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="admin.html">Admin</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-custom">
-        <div class="admin-container" id="loginContainer">
-            <h2>🔐 Login do Responsável</h2>
-            <form id="loginForm" class="name-form">
-                <div class="mb-3">
-                    <label for="adminName" class="form-label">Nome do Responsável</label>
-                    <input type="text" id="adminName" class="form-control" placeholder="Digite 'Responsavel'" required>
-                </div>
-                <div class="mb-3">
-                    <label for="adminPassword" class="form-label">Senha</label>
-                    <input type="password" id="adminPassword" class="form-control" placeholder="Digite a senha" required>
-                </div>
-                <div id="loginError" class="text-danger" style="display: none;"></div>
-                <button type="submit" class="btn btn-primary">Entrar</button>
-            </form>
-        </div>
-        <div class="admin-container" id="adminContainer" style="display: none;">
-            <h2>📊 Painel de Administração</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <h3>Usuários Online</h3>
-                    <ul id="onlineUsers" class="list-group"></ul>
-                </div>
-                <div class="col-md-4">
-                    <h3>Histórico de Entradas/Saídas</h3>
-                    <div id="historyLog" class="history-box"></div>
-                </div>
-                <div class="col-md-4">
-                    <h3>Responder Usuário</h3>
-                    <select id="userSelect" class="form-select mb-3">
-                        <option value="">Selecione um usuário</option>
-                    </select>
-                    <div id="adminChatBox" class="chat-box"></div>
-                    <form id="adminChatForm" class="chat-form">
-                        <input type="text" id="adminMessage" class="form-control" placeholder="Digite sua mensagem..." required>
-                        <button type="submit" class="btn btn-primary">➤</button>
-                    </form>
-                </div>
-            </div>
-        </div>
+  <!-- Barra de navegação -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Educação Financeira</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
+          <li class="nav-item"><a class="nav-link" href="savings.html">Poupança</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.html">Relatórios</a></li>
+          <li class="nav-item"><a class="nav-link" href="chat.html">Chat</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto" id="authLinks"></ul>
+      </div>
     </div>
+  </nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let ws;
+  <!-- Conteúdo Principal -->
+  <div class="container mt-4">
+    <h1>Painel do Administrador</h1>
+    <p>Gerencie usuários, mensagens e monitore atividades.</p>
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const adminName = document.getElementById('adminName').value.trim();
-            const adminPassword = document.getElementById('adminPassword').value.trim();
-            document.getElementById('loginError').style.display = 'none';
-            connectWebSocket(adminName, adminPassword);
+    <!-- Mensagem de Boas-Vindas -->
+    <div id="welcomeAdmin" class="notification success d-none"></div>
+
+    <!-- Gerenciamento de Administradores -->
+    <h2>Gerenciamento de Administradores</h2>
+    <div id="adminList" class="mb-4"></div>
+
+    <!-- Lista de Usuários -->
+    <h2>Usuários Online</h2>
+    <ul id="userList" class="list-group mb-4"></ul>
+
+    <!-- Chat do Administrador -->
+    <h2>Chat com Usuários</h2>
+    <div id="adminChatBox" class="p-3 mb-3"></div>
+    <form id="adminChatForm" class="mb-3">
+      <div class="mb-3">
+        <label for="chatUser" class="form-label">Enviar para:</label>
+        <select id="chatUser" class="form-control" required></select>
+      </div>
+      <div class="input-group">
+        <input type="text" id="adminChatInput" class="form-control" placeholder="Digite sua mensagem..." required>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+      </div>
+    </form>
+
+    <!-- Dúvidas dos Usuários -->
+    <h2>Dúvidas Pendentes</h2>
+    <div id="queriesList" class="mb-4"></div>
+
+    <!-- Monitoramento de Páginas -->
+    <h2>Monitoramento de Páginas</h2>
+    <div id="pageActivity" class="card p-3 mb-4"></div>
+
+    <!-- Monitoramento de Usuários -->
+    <h2>Monitoramento de Usuários</h2>
+    <div id="userActivity" class="card p-3"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.5.0/client-dist/socket.io.min.js"></script>
+  <script>
+    // Inicializa conexão WebSocket
+    const socket = io();
+
+    // Função para exibir notificações flutuantes
+    function showNotification(type, message, isTemporary = true) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      if (isTemporary) {
+        setTimeout(() => notification.remove(), 3000);
+      }
+    }
+
+    // Escuta notificações do servidor
+    socket.on('notification', ({ type, message }) => {
+      showNotification(type, message);
+    });
+
+    // Verifica se o usuário é administrador
+    if (!localStorage.getItem('isAdmin') || localStorage.getItem('isAdmin') !== 'true') {
+      showNotification('error', 'Acesso restrito a administradores.');
+      setTimeout(() => window.location.href = 'index.html', 1000);
+      throw new Error('Acesso não autorizado');
+    } else {
+      socket.emit('adminJoin');
+      // Exibe mensagem de boas-vindas
+      fetch(`/api/admin/${localStorage.getItem('userId')}`)
+        .then(response => response.json())
+        .then(data => {
+          const welcomeDiv = document.getElementById('welcomeAdmin');
+          welcomeDiv.textContent = `Bem-vindo, ${data.username}!`;
+          welcomeDiv.classList.remove('d-none');
+          setTimeout(() => welcomeDiv.classList.add('d-none'), 5000);
+        })
+        .catch(() => showNotification('error', 'Erro ao carregar nome do administrador.'));
+    }
+
+    // Atualiza a barra de navegação
+    function updateNavbar() {
+      const user = localStorage.getItem('user');
+      const authLinks = document.getElementById('authLinks');
+      if (user) {
+        authLinks.innerHTML = `<li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Sair</a></li>`;
+      } else {
+        authLinks.innerHTML = `
+          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="register.html">Cadastrar</a></li>
+        `;
+      }
+    }
+
+    // Função de logout
+    function logout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('isAdmin');
+      window.location.href = 'index.html';
+    }
+
+    // Atualiza a lista de usuários
+    socket.on('updateUserList', ({ online }) => {
+      const userList = document.getElementById('userList');
+      const chatUser = document.getElementById('chatUser');
+      userList.innerHTML = online.map(user => `
+        <li class="list-group-item">
+          <span class="online-status online"></span>${user.username}
+        </li>
+      `).join('');
+      chatUser.innerHTML = '<option value="">Selecione um usuário</option>' + online.map(user => `
+        <option value="${user.id}">${user.username}</option>
+      `).join('');
+    });
+
+    // Escuta mensagens do chat
+    socket.on('chatMessage', (msg) => {
+      const div = document.createElement('div');
+      div.className = `message ${msg.user === 'Administrador' ? 'user' : 'bot'}`;
+      div.textContent = `${msg.user}: ${msg.text}`;
+      document.getElementById('adminChatBox').appendChild(div);
+      document.getElementById('adminChatBox').scrollTop = document.getElementById('adminChatBox').scrollHeight;
+    });
+
+    // Manipula envio de mensagens do administrador
+    document.getElementById('adminChatForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const userId = document.getElementById('chatUser').value;
+      const text = document.getElementById('adminChatInput').value.trim();
+      if (!userId || !text) {
+        showNotification('error', 'Selecione um usuário e insira uma mensagem.');
+        return;
+      }
+      socket.emit('adminMessage', { userId, text });
+      document.getElementById('adminChatInput').value = '';
+    });
+
+    // Carrega lista de administradores
+    async function loadAdmins() {
+      try {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        const adminList = document.getElementById('adminList');
+        adminList.innerHTML = users.map(user => `
+          <div class="card mb-2">
+            <div class="card-body">
+              <p><strong>Nome:</strong> ${user.username}</p>
+              <p><strong>Email:</strong> ${user.email}</p>
+              <p><strong>Status:</strong> ${user.isAdmin ? 'Administrador' : 'Usuário'}</p>
+              <button class="btn btn-primary btn-sm" onclick="toggleAdmin('${user.id}', ${user.isAdmin})">
+                ${user.isAdmin ? 'Remover Admin' : 'Promover a Admin'}
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        showNotification('error', 'Erro ao carregar administradores.');
+      }
+    }
+
+    // Alterna status de administrador
+    window.toggleAdmin = async (userId, isAdmin) => {
+      try {
+        const response = await fetch(`/api/users/${userId}/toggle-admin`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
         });
-
-        function connectWebSocket(adminName, adminPassword) {
-            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-            ws = new WebSocket(protocol + window.location.host);
-
-            ws.onopen = () => {
-                ws.send(JSON.stringify({ type: 'setAdmin', name: adminName, password: adminPassword }));
-                console.log('Tentativa de conexão como Responsável.');
-            };
-
-            ws.onmessage = (evento) => {
-                const data = JSON.parse(evento.data);
-                if (data.tipo === 'admin_login_success') {
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('adminContainer').style.display = 'block';
-                    console.log('Conectado ao WebSocket como Responsável.');
-                } else if (data.tipo === 'admin_login_error') {
-                    document.getElementById('loginError').textContent = data.mensagem;
-                    document.getElementById('loginError').style.display = 'block';
-                    ws.close();
-                } else if (data.tipo === 'usuarios_online') {
-                    updateOnlineUsers(data.usuarios);
-                } else if (data.tipo === 'historico') {
-                    addHistoryLog(data.mensagem);
-                } else if (data.tipo === 'mensagem_usuario') {
-                    addAdminChatMessage(`${data.nome}: ${data.mensagem}`, 'usuario');
-                }
-            };
-
-            ws.onclose = () => {
-                console.log('Desconectado do WebSocket.');
-                if (document.getElementById('adminContainer').style.display === 'block') {
-                    document.getElementById('loginContainer').style.display = 'block';
-                    document.getElementById('adminContainer').style.display = 'none';
-                    document.getElementById('loginError').textContent = 'Conexão perdida. Faça login novamente.';
-                    document.getElementById('loginError').style.display = 'block';
-                }
-            };
-
-            ws.onerror = (error) => {
-                console.error('Erro no WebSocket:', error);
-                document.getElementById('loginError').textContent = 'Erro na conexão. Tente novamente.';
-                document.getElementById('loginError').style.display = 'block';
-            };
-
-            document.getElementById('adminChatForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const mensagem = document.getElementById('adminMessage').value.trim();
-                const userId = document.getElementById('userSelect').value;
-                if (mensagem && userId && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'mensagem_responsavel', userId, mensagem }));
-                    addAdminChatMessage(`Responsável: ${mensagem}`, 'responsavel');
-                    document.getElementById('adminMessage').value = '';
-                }
-            });
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadAdmins();
+        } else {
+          throw new Error(result.error);
         }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao alterar status.');
+      }
+    };
 
-        function updateOnlineUsers(usuarios) {
-            const list = document.getElementById('onlineUsers');
-            const select = document.getElementById('userSelect');
-            list.innerHTML = '';
-            select.innerHTML = '<option value="">Selecione um usuário</option>';
-            usuarios.forEach(u => {
-                const li = document.createElement('li');
-                li.className = `list-group-item ${u.status === 'Aguardando Responsável' ? 'list-group-item-warning' : ''}`;
-                li.textContent = `${u.nome} (${u.status})`;
-                list.appendChild(li);
-
-                const option = document.createElement('option');
-                option.value = u.id;
-                option.textContent = u.nome;
-                if (u.status === 'Aguardando Responsável') {
-                    option.className = 'text-warning';
-                }
-                select.appendChild(option);
-            });
+    // Exclui usuário
+    window.deleteUser = async (userId) => {
+      try {
+        const response = await fetch(`/api/users/${userId}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadAdmins();
+        } else {
+          throw new Error(result.error);
         }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao excluir usuário.');
+      }
+    };
 
-        function addHistoryLog(mensagem) {
-            const div = document.createElement('div');
-            div.textContent = mensagem;
-            document.getElementById('historyLog').appendChild(div);
-            document.getElementById('historyLog').scrollTop = document.getElementById('historyLog').scrollHeight;
-        }
+    // Carrega dúvidas pendentes
+    async function loadQueries() {
+      try {
+        const response = await fetch('/api/queries');
+        const queries = await response.json();
+        document.getElementById('queriesList').innerHTML = queries.filter(q => q.status === 'pending').length ? queries.filter(q => q.status === 'pending').map(q => `
+          <div class="card mb-2">
+            <div class="card-body">
+              <p><strong>Usuário:</strong> ${q.userId}</p>
+              <p><strong>Dúvida:</strong> ${q.query}</p>
+              <p><strong>Data:</strong> ${new Date(q.createdAt).toLocaleDateString('pt-BR')}</p>
+              <form class="responseForm" data-id="${q.id}">
+                <div class="mb-3">
+                  <label for="response-${q.id}" class="form-label">Resposta</label>
+                  <textarea class="form-control" id="response-${q.id}" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar Resposta</button>
+              </form>
+            </div>
+          </div>
+        `).join('') : '<p>Nenhuma dúvida pendente.</p>';
 
-        function addAdminChatMessage(mensagem, tipo) {
-            const div = document.createElement('div');
-            div.className = `mensagem mensagem-${tipo}`;
-            div.textContent = mensagem;
-            document.getElementById('adminChatBox').appendChild(div);
-            document.getElementById('adminChatBox').scrollTop = document.getElementById('adminChatBox').scrollHeight;
-        }
-    </script>
+        // Adiciona eventos aos formulários de resposta
+        document.querySelectorAll('.responseForm').forEach(form => {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = form.dataset.id;
+            const responseText = document.getElementById(`response-${id}`).value.trim();
+            if (!responseText) {
+              showNotification('error', 'Por favor, insira uma resposta.');
+              return;
+            }
+            try {
+              const response = await fetch(`/api/queries/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'answered', response: responseText })
+              });
+              const result = await response.json();
+              if (response.ok) {
+                showNotification('success', result.message);
+                socket.emit('adminResponse', { userId: queries.find(q => q.id === id).userId, text: responseText });
+                loadQueries();
+              } else {
+                throw new Error(result.error);
+              }
+            } catch (error) {
+              showNotification('error', error.message || 'Erro ao responder dúvida.');
+            }
+          });
+        });
+      } catch (error) {
+        showNotification('error', 'Erro ao carregar dúvidas.');
+      }
+    }
+
+    // Escuta novas dúvidas
+    socket.on('userQuery', (query) => {
+      loadQueries();
+      showNotification('info', `Nova dúvida de ${query.username || query.userId}: ${query.query}`, false);
+    });
+
+    // Monitoramento de atividades de páginas
+    socket.on('pageActivity', (activity) => {
+      const pageActivity = document.getElementById('pageActivity');
+      const entry = document.createElement('p');
+      entry.textContent = `[${activity.timestamp}] ${activity.method} ${activity.url}`;
+      pageActivity.appendChild(entry);
+      pageActivity.scrollTop = pageActivity.scrollHeight;
+    });
+
+    // Monitoramento de atividades de usuários
+    socket.on('chatMessage', (msg) => {
+      if (!msg.user.includes('Bot') && !msg.user.includes('Administrador') && !msg.user.includes('Sistema')) {
+        const userActivity = document.getElementById('userActivity');
+        const entry = document.createElement('p');
+        entry.textContent = `[${new Date().toISOString()}] ${msg.user} enviou: ${msg.text}`;
+        userActivity.appendChild(entry);
+        userActivity.scrollTop = userActivity.scrollHeight;
+      }
+    });
+
+    // Inicializa a página
+    socket.emit('registerUser', { userId: localStorage.getItem('userId'), username: localStorage.getItem('user') });
+    updateNavbar();
+    loadAdmins();
+    loadQueries();
+  </script>
 </body>
 </html>

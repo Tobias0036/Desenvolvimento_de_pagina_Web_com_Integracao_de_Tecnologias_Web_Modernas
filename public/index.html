@@ -1,159 +1,374 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Educação Financeira - Metas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="estilo.css">
+  <!-- Define a codificação de caracteres -->
+  <meta charset="UTF-8">
+  <!-- Configura responsividade -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Educação Financeira Moçambique</title>
+  <!-- Importa Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Importa estilos personalizados -->
+  <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Educação Financeira</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="index.html">Metas</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="chat.html">Chat</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="budget.html">Orçamento</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin.html">Admin</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  <!-- Barra de navegação -->
+  <nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Educação Financeira</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link active" href="index.html">Início</a></li>
+          <li class="nav-item"><a class="nav-link" href="savings.html">Poupança</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.html">Relatórios</a></li>
+          <li class="nav-item"><a class="nav-link" href="chat.html">Chat</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto" id="authLinks"></ul>
+      </div>
+    </div>
+  </nav>
 
-    <section class="intro-section">
-        <div class="container-custom text-center">
-            <h1>Bem-vindo à Educação Financeira!</h1>
-            <p>Aprenda a gerir suas finanças, definir metas, planejar orçamentos e conversar com outros sobre educação financeira. Nosso site oferece ferramentas simples e práticas para alcançar seus objetivos financeiros.</p>
-            <button class="btn btn-primary btn-lg" onclick="scrollToMetas()">Comece Agora</button>
-        </div>
-    </section>
-
-    <div class="container-custom" id="metasSection">
-        <div class="row">
-            <div class="col-md-5 form-container">
-                <h2>💰 Definir Meta Financeira</h2>
-                <p>Crie metas para alcançar seus sonhos financeiros, como comprar uma casa.</p>
-                <form id="metaForm">
-                    <div class="mb-3">
-                        <label for="metaDescricao" class="form-label">Meta</label>
-                        <input type="text" class="form-control" id="metaDescricao" placeholder="Ex: Comprar casa" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="metaValor" class="form-label">Valor (MZN)</label>
-                        <input type="number" step="0.01" class="form-control" id="metaValor" placeholder="Ex: 50000.00" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
-                </form>
-                <div id="metaMessage" class="meta-message" style="display: none;"></div>
-                <button class="btn btn-secondary mt-3" onclick="loadMetas()">Verificar Metas</button>
-                <div id="metasList" class="mt-3"></div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h3>💡 Dicas Financeiras</h3>
-                        <div id="dicasContainer"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <!-- Conteúdo Principal -->
+  <div class="container mt-4">
+    <!-- Sessão de Boas-Vindas -->
+    <div class="welcome-section">
+      <h2 id="welcomeMessage"></h2>
+      <p id="welcomeText"></p>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        async function carregarDicas() {
-            try {
-                const resposta = await fetch('/api/dicas');
-                const dicas = await resposta.json();
-                document.getElementById('dicasContainer').innerHTML = dicas.map(dica => `
-                    <h5>${dica.titulo}</h5>
-                    <p>${dica.texto}</p>
-                `).join('');
-            } catch (erro) {
-                document.getElementById('dicasContainer').innerHTML = '<p>Erro ao carregar dicas!</p>';
-            }
-        }
+    <h1>Educação Financeira em Moçambique</h1>
+    <p>Conforme a Lei n.º 20/2020, Artigo 70, promovemos a literacia financeira.</p>
 
-        document.getElementById('metaForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const descricao = document.getElementById('metaDescricao').value;
-            const valor = document.getElementById('metaValor').value;
-            try {
-                const resposta = await fetch('/api/metas', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ descricao, valor })
-                });
-                const resultado = await resposta.json();
-                const messageDiv = document.getElementById('metaMessage');
-                messageDiv.textContent = resultado.message;
-                messageDiv.style.display = 'block';
-                setTimeout(() => { messageDiv.style.display = 'none'; }, 3000);
-                document.getElementById('metaForm').reset();
-            } catch (erro) {
-                const messageDiv = document.getElementById('metaMessage');
-                messageDiv.textContent = 'Erro ao enviar meta!';
-                messageDiv.style.display = 'block';
-                setTimeout(() => { messageDiv.style.display = 'none'; }, 3000);
-            }
+    <!-- Formulário de Dados Financeiros -->
+    <h2>Registrar Dados Financeiros</h2>
+    <form id="financialForm" class="mb-4">
+      <h3>Rendimento Mensal (MZN)</h3>
+      <div class="mb-3">
+        <label for="salary" class="form-label">Salário Líquido</label>
+        <input type="number" class="form-control" id="salary" step="0.01" required>
+      </div>
+      <div class="mb-3">
+        <label for="otherSources" class="form-label">Outras Fontes de Rendimento</label>
+        <input type="number" class="form-control" id="otherSources" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="otherSourceType" class="form-label">Tipo de Outra Fonte</label>
+        <select class="form-control" id="otherSourceType">
+          <option value="Nenhuma">Nenhuma</option>
+          <option value="Barraca">Barraca</option>
+          <option value="Mpesa">Mpesa</option>
+          <option value="Loja">Loja</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      <h3>Despesas Fixas (MZN)</h3>
+      <div class="mb-3">
+        <label for="housing" class="form-label">Habitação</label>
+        <input type="number" class="form-control" id="housing" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="food" class="form-label">Alimentação</label>
+        <input type="number" class="form-control" id="food" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="transport" class="form-label">Transporte</label>
+        <input type="number" class="form-control" id="transport" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="education" class="form-label">Educação</label>
+        <input type="number" class="form-control" id="education" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="health" class="form-label">Saúde</label>
+        <input type="number" class="form-control" id="health" step="0.01">
+      </div>
+      <h3>Despesas Variáveis (MZN)</h3>
+      <div class="mb-3">
+        <label for="leisure" class="form-label">Lazer</label>
+        <input type="number" class="form-control" id="leisure" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="nonEssential" class="form-label">Compras Não Essenciais</label>
+        <input type="number" class="form-control" id="nonEssential" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="subscriptions" class="form-label">Subscrições</label>
+        <input type="number" class="form-control" id="subscriptions" step="0.01">
+      </div>
+      <div class="mb-3">
+        <label for="emergencies" class="form-label">Emergências</label>
+        <input type="number" class="form-control" id="emergencies" step="0.01">
+      </div>
+      <button type="submit" class="btn btn-primary" id="saveBtn">Salvar Dados</button>
+      <button type="button" class="btn btn-secondary d-none" id="editBtn">Editar Dados</button>
+      <button type="button" class="btn btn-danger d-none" id="deleteBtn">Excluir Dados</button>
+    </form>
+    <div id="financialData" class="card d-none p-3 mb-4"></div>
+
+    <!-- Definições Financeiras -->
+    <h2>Definições Financeiras</h2>
+    <div id="definitions" class="row"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.5.0/client-dist/socket.io.min.js"></script>
+  <script>
+    // Inicializa conexão WebSocket
+    const socket = io();
+
+    // Função para exibir notificações flutuantes
+    function showNotification(type, message) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
+
+    // Escuta notificações do servidor
+    socket.on('notification', ({ type, message }) => {
+      showNotification(type, message);
+    });
+
+    // Atualiza a barra de navegação com base no status de login
+    function updateNavbar() {
+      const user = localStorage.getItem('user');
+      const authLinks = document.getElementById('authLinks');
+      if (user) {
+        authLinks.innerHTML = `<li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Sair</a></li>`;
+      } else {
+        authLinks.innerHTML = `
+          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="register.html">Cadastrar</a></li>
+        `;
+      }
+    }
+
+    // Função de logout
+    function logout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('isAdmin');
+      window.location.href = 'index.html';
+    }
+
+    // Configura a sessão de boas-vindas
+    function setupWelcomeSection() {
+      const user = localStorage.getItem('user');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const welcomeText = document.getElementById('welcomeText');
+      if (user) {
+        welcomeMessage.textContent = `Bem-vindo, ${user}!`;
+        welcomeText.textContent = 'Gerencie suas finanças com facilidade e alcance seus objetivos financeiros com nosso suporte personalizado.';
+      } else {
+        welcomeMessage.textContent = 'Bem-vindo!';
+        welcomeText.textContent = 'Um bom orçamento e educação financeira podem transformar sua vida. Registre-se para planejar suas finanças, poupar mais e alcançar seus sonhos!';
+      }
+    }
+
+    // Carrega definições financeiras
+    async function loadDefinitions() {
+      try {
+        const response = await fetch('/api/definitions');
+        const definitions = await response.json();
+        const container = document.getElementById('definitions');
+        container.innerHTML = definitions.map(def => `
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">${def.term}</h5>
+                <p class="card-text">${def.definition}</p>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        showNotification('error', 'Erro ao carregar definições.');
+      }
+    }
+
+    // Carrega dados financeiros do usuário
+    async function loadFinancialData() {
+      const userId = localStorage.getItem('userId');
+      if (!userId) return;
+      try {
+        const response = await fetch(`/api/financial-data/${userId}`);
+        const data = await response.json();
+        const financialData = document.getElementById('financialData');
+        const editBtn = document.getElementById('editBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        if (Object.keys(data).length) {
+          financialData.classList.remove('d-none');
+          editBtn.classList.remove('d-none');
+          deleteBtn.classList.remove('d-none');
+          saveBtn.textContent = 'Atualizar Dados';
+          financialData.innerHTML = `
+            <h3>Dados Financeiros</h3>
+            <p><strong>Salário:</strong> ${data.income.salary} MZN</p>
+            <p><strong>Outras Fontes:</strong> ${data.income.otherSources} MZN (${data.income.otherSourceType})</p>
+            <p><strong>Despesas Fixas:</strong></p>
+            <ul>
+              <li>Habitação: ${data.fixedExpenses.housing} MZN</li>
+              <li>Alimentação: ${data.fixedExpenses.food} MZN</li>
+              <li>Transporte: ${data.fixedExpenses.transport} MZN</li>
+              <li>Educação: ${data.fixedExpenses.education} MZN</li>
+              <li>Saúde: ${data.fixedExpenses.health} MZN</li>
+            </ul>
+            <p><strong>Despesas Variáveis:</strong></p>
+            <ul>
+              <li>Lazer: ${data.variableExpenses.leisure} MZN</li>
+              <li>Não Essenciais: ${data.variableExpenses.nonEssential} MZN</li>
+              <li>Subscrições: ${data.variableExpenses.subscriptions} MZN</li>
+              <li>Emergências: ${data.variableExpenses.emergencies} MZN</li>
+            </ul>
+          `;
+          // Preenche formulário para edição
+          document.getElementById('salary').value = data.income.salary;
+          document.getElementById('otherSources').value = data.income.otherSources;
+          document.getElementById('otherSourceType').value = data.income.otherSourceType;
+          document.getElementById('housing').value = data.fixedExpenses.housing;
+          document.getElementById('food').value = data.fixedExpenses.food;
+          document.getElementById('transport').value = data.fixedExpenses.transport;
+          document.getElementById('education').value = data.fixedExpenses.education;
+          document.getElementById('health').value = data.fixedExpenses.health;
+          document.getElementById('leisure').value = data.variableExpenses.leisure;
+          document.getElementById('nonEssential').value = data.variableExpenses.nonEssential;
+          document.getElementById('subscriptions').value = data.variableExpenses.subscriptions;
+          document.getElementById('emergencies').value = data.variableExpenses.emergencies;
+        } else {
+          financialData.classList.add('d-none');
+          editBtn.classList.add('d-none');
+          deleteBtn.classList.add('d-none');
+          saveBtn.textContent = 'Salvar Dados';
+          document.getElementById('financialForm').reset();
+        }
+      } catch (error) {
+        showNotification('error', 'Erro ao carregar dados financeiros.');
+      }
+    }
+
+    // Manipula envio do formulário de dados financeiros
+    document.getElementById('financialForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        showNotification('error', 'Faça login para salvar dados.');
+        return;
+      }
+
+      const data = {
+        userId,
+        income: {
+          salary: document.getElementById('salary').value,
+          otherSources: document.getElementById('otherSources').value || 0,
+          otherSourceType: document.getElementById('otherSourceType').value
+        },
+        fixedExpenses: {
+          housing: document.getElementById('housing').value || 0,
+          food: document.getElementById('food').value || 0,
+          transport: document.getElementById('transport').value || 0,
+          education: document.getElementById('education').value || 0,
+          health: document.getElementById('health').value || 0
+        },
+        variableExpenses: {
+          leisure: document.getElementById('leisure').value || 0,
+          nonEssential: document.getElementById('nonEssential').value || 0,
+          subscriptions: document.getElementById('subscriptions').value || 0,
+          emergencies: document.getElementById('emergencies').value || 0
+        }
+      };
+
+      try {
+        const response = await fetch('/api/financial-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
         });
-
-<<<<<<< HEAD
-        async function loadMetas() {
-            try {
-                const resposta = await fetch('/api/metas');
-                const metas = await resposta.json();
-                const list = document.getElementById('metasList');
-                if (metas.length === 0) {
-                    list.innerHTML = '<p>Nenhuma meta adicionada.</p>';
-                } else {
-                    list.innerHTML = `
-                        <h3>📋 Metas Adicionadas</h3>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Meta</th>
-                                    <th>Valor (MZN)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${metas.map(m => `
-                                    <tr>
-                                        <td>${m.id}</td>
-                                        <td>${m.descricao}</td>
-                                        <td>${m.valor.toFixed(2)}</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `;
-                }
-            } catch (erro) {
-                document.getElementById('metasList').innerHTML = '<p>Erro ao carregar metas!</p>';
-            }
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadFinancialData();
+        } else {
+          throw new Error(result.error);
         }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao salvar dados.');
+      }
+    });
 
-=======
->>>>>>> 5330c34ff4694caac77590f5ad53763c4f07140b
-        function scrollToMetas() {
-            document.getElementById('metasSection').scrollIntoView({ behavior: 'smooth' });
+    // Manipula edição de dados financeiros
+    document.getElementById('editBtn').addEventListener('click', async () => {
+      const userId = localStorage.getItem('userId');
+      const data = {
+        userId,
+        income: {
+          salary: document.getElementById('salary').value,
+          otherSources: document.getElementById('otherSources').value || 0,
+          otherSourceType: document.getElementById('otherSourceType').value
+        },
+        fixedExpenses: {
+          housing: document.getElementById('housing').value || 0,
+          food: document.getElementById('food').value || 0,
+          transport: document.getElementById('transport').value || 0,
+          education: document.getElementById('education').value || 0,
+          health: document.getElementById('health').value || 0
+        },
+        variableExpenses: {
+          leisure: document.getElementById('leisure').value || 0,
+          nonEssential: document.getElementById('nonEssential').value || 0,
+          subscriptions: document.getElementById('subscriptions').value || 0,
+          emergencies: document.getElementById('emergencies').value || 0
         }
+      };
 
-        carregarDicas();
-    </script>
+      try {
+        const response = await fetch(`/api/financial-data/${userId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadFinancialData();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao atualizar dados.');
+      }
+    });
+
+    // Manipula exclusão de dados financeiros
+    document.getElementById('deleteBtn').addEventListener('click', async () => {
+      const userId = localStorage.getItem('userId');
+      try {
+        const response = await fetch(`/api/financial-data/${userId}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadFinancialData();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao excluir dados.');
+      }
+    });
+
+    // Inicializa a página
+    socket.emit('registerUser', { userId: localStorage.getItem('userId') });
+    updateNavbar();
+    setupWelcomeSection();
+    loadDefinitions();
+    loadFinancialData();
+  </script>
 </body>
 </html>

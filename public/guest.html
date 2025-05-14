@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planejamento Anônimo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Educação Financeira</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Início</a></li>
+          <li class="nav-item"><a class="nav-link" href="savings.html">Poupança</a></li>
+          <li class="nav-item"><a class="nav-link" href="chat.html">Chat</a></li>
+          <li class="nav-item"><a class="nav-link active" href="guest.html">Anônimo</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto" id="authLinks"></ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Conteúdo Principal -->
+  <div class="container mt-4">
+    <h1>Planejamento Anônimo</h1>
+    <p>Adicione seus objetivos financeiros, conforme a Lei n.º 20/2020.</p>
+    <div class="row">
+      <!-- Formulário -->
+      <div class="col-md-6">
+        <form id="goalForm" class="mb-4">
+          <div class="mb-3">
+            <label for="goal" class="form-label">Seu Objetivo</label>
+            <input type="text" class="form-control" id="goal" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Adicionar Objetivo</button>
+        </form>
+        <div id="goalFeedback" class="alert d-none"></div>
+      </div>
+      <!-- Lista de Objetivos -->
+      <div class="col-md-6">
+        <h2>Objetivos</h2>
+        <div id="goalsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io@4.5.0/client-dist/socket.io.min.js"></script>
+  <script>
+    function updateNavbar() {
+      const user = localStorage.getItem('user');
+      const authLinks = document.getElementById('authLinks');
+      if (user) {
+        authLinks.innerHTML = `<li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Sair</a></li>`;
+      } else {
+        authLinks.innerHTML = `
+          <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="register.html">Cadastrar</a></li>
+        `;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('isAdmin');
+      window.location.href = 'index.html';
+    }
+
+    const socket = io();
+    async function loadGoals() {
+      try {
+        const response = await fetch('/api/guest-plans');
+        const goals = await response.json();
+        document.getElementById('goalsList').innerHTML = goals.length ? goals.map(g => `
+          <div class="card mb-2">
+            <div class="card-body">
+              <p>${g.goal} ${g.userId ? '(Logado)' : '(Anônimo)'}</p>
+              <small>${new Date(g.createdAt).toLocaleString()}</small>
+            </div>
+          </div>
+        `).join('') : '<p>Nenhum objetivo registrado.</p>';
+      } catch (error) {
+        console.error('Erro ao carregar objetivos:', error);
+      }
+    }
+
+    socket.on('guestPlanUpdate', () => {
+      loadGoals();
+    });
+
+    document.getElementById('goalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const feedback = document.getElementById('goalFeedback');
+      const data = {
+        userId: localStorage.getItem('userId') || null,
+        goal: document.getElementById('goal').value
+      };
+
+      try {
+        const response = await fetch('/api/guest-plans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (response.ok) {
+          feedback.classList.remove('d-none', 'alert-danger');
+          feedback.classList.add('alert-success');
+          feedback.textContent = 'Objetivo adicionado!';
+          socket.emit('guestPlan', result.data);
+          document.getElementById('goalForm').reset();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        feedback.classList.remove('d-none', 'alert-success');
+        feedback.classList.add('alert-danger');
+        feedback.textContent = error.message || 'Erro ao adicionar objetivo.';
+      }
+    });
+
+    updateNavbar();
+    loadGoals();
+  </script>
+</body>
+</html>
