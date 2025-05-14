@@ -34,16 +34,37 @@
   <!-- Conteúdo Principal -->
   <div class="container mt-4">
     <h1>Painel do Administrador</h1>
-    <p>Gerencie usuários, mensagens e monitore atividades.</p>
+    <p>Gerencie usuários, administradores, mensagens e monitore atividades.</p>
 
     <!-- Mensagem de Boas-Vindas -->
     <div id="welcomeAdmin" class="notification success d-none"></div>
 
+    <!-- Gerenciamento de Usuários -->
+    <h2>Gerenciamento de Usuários</h2>
+    <div id="userListAdmin" class="mb-4"></div>
+
     <!-- Gerenciamento de Administradores -->
     <h2>Gerenciamento de Administradores</h2>
+    <h3>Adicionar Novo Administrador</h3>
+    <form id="addAdminForm" class="mb-4">
+      <div class="mb-3">
+        <label for="adminUsername" class="form-label">Nome</label>
+        <input type="text" class="form-control" id="adminUsername" required>
+      </div>
+      <div class="mb-3">
+        <label for="adminEmail" class="form-label">Email</label>
+        <input type="email" class="form-control" id="adminEmail" required>
+      </div>
+      <div class="mb-3">
+        <label for="adminPassword" class="form-label">Senha</label>
+        <input type="password" class="form-control" id="adminPassword" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Adicionar</button>
+    </form>
+    <h3>Lista de Administradores</h3>
     <div id="adminList" class="mb-4"></div>
 
-    <!-- Lista de Usuários -->
+    <!-- Lista de Usuários Online -->
     <h2>Usuários Online</h2>
     <ul id="userList" class="list-group mb-4"></ul>
 
@@ -88,7 +109,7 @@
       notification.textContent = message;
       document.body.appendChild(notification);
       if (isTemporary) {
-        setTimeout(() => notification.remove(), 3000);
+        setTimeout(() => notification.remove(), 5000);
       }
     }
 
@@ -97,14 +118,14 @@
       showNotification(type, message);
     });
 
-    // Verifica se o usuário é administrador
+    // Verifica se o usuário é administrador e exibe mensagem de boas-vindas
     if (!localStorage.getItem('isAdmin') || localStorage.getItem('isAdmin') !== 'true') {
       showNotification('error', 'Acesso restrito a administradores.');
       setTimeout(() => window.location.href = 'index.html', 1000);
       throw new Error('Acesso não autorizado');
     } else {
       socket.emit('adminJoin');
-      // Exibe mensagem de boas-vindas
+      // Exibe mensagem de boas-vindas ao carregar a página
       fetch(`/api/admin/${localStorage.getItem('userId')}`)
         .then(response => response.json())
         .then(data => {
@@ -113,7 +134,10 @@
           welcomeDiv.classList.remove('d-none');
           setTimeout(() => welcomeDiv.classList.add('d-none'), 5000);
         })
-        .catch(() => showNotification('error', 'Erro ao carregar nome do administrador.'));
+        .catch(error => {
+          console.error('Erro ao carregar nome do administrador:', error);
+          showNotification('error', 'Erro ao carregar nome do administrador.');
+        });
     }
 
     // Atualiza a barra de navegação
@@ -135,10 +159,11 @@
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('chatMessages');
       window.location.href = 'index.html';
     }
 
-    // Atualiza a lista de usuários
+    // Atualiza a lista de usuários online
     socket.on('updateUserList', ({ online }) => {
       const userList = document.getElementById('userList');
       const chatUser = document.getElementById('chatUser');
@@ -174,22 +199,40 @@
       document.getElementById('adminChatInput').value = '';
     });
 
+    // Carrega lista de usuários
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        const userListAdmin = document.getElementById('userListAdmin');
+        userListAdmin.innerHTML = users.filter(u => !u.isAdmin).map(user => `
+          <div class="card mb-2">
+            <div class="card-body">
+              <p><strong>Nome:</strong> ${user.username}</p>
+              <p><strong>Email:</strong> ${user.email}</p>
+              <button class="btn btn-primary btn-sm" onclick="toggleAdmin('${user.id}', ${user.isAdmin})">Promover a Admin</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Excluir</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        showNotification('error', 'Erro ao carregar usuários.');
+      }
+    }
+
     // Carrega lista de administradores
     async function loadAdmins() {
       try {
         const response = await fetch('/api/users');
         const users = await response.json();
         const adminList = document.getElementById('adminList');
-        adminList.innerHTML = users.map(user => `
+        adminList.innerHTML = users.filter(u => u.isAdmin).map(user => `
           <div class="card mb-2">
             <div class="card-body">
               <p><strong>Nome:</strong> ${user.username}</p>
               <p><strong>Email:</strong> ${user.email}</p>
-              <p><strong>Status:</strong> ${user.isAdmin ? 'Administrador' : 'Usuário'}</p>
-              <button class="btn btn-primary btn-sm" onclick="toggleAdmin('${user.id}', ${user.isAdmin})">
-                ${user.isAdmin ? 'Remover Admin' : 'Promover a Admin'}
-              </button>
-              <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Excluir</button>
+              <button class="btn btn-primary btn-sm" onclick="editAdmin('${user.id}', '${user.username}', '${user.email}')">Editar</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteAdmin('${user.id}')">Excluir</button>
             </div>
           </div>
         `).join('');
@@ -208,6 +251,7 @@
         const result = await response.json();
         if (response.ok) {
           showNotification('success', result.message);
+          loadUsers();
           loadAdmins();
         } else {
           throw new Error(result.error);
@@ -226,12 +270,121 @@
         const result = await response.json();
         if (response.ok) {
           showNotification('success', result.message);
-          loadAdmins();
+          loadUsers();
         } else {
           throw new Error(result.error);
         }
       } catch (error) {
         showNotification('error', error.message || 'Erro ao excluir usuário.');
+      }
+    };
+
+    // Adiciona novo administrador
+    document.getElementById('addAdminForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('adminUsername').value.trim();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value.trim();
+      if (!username || !email || !password) {
+        showNotification('error', 'Todos os campos são obrigatórios.');
+        return;
+      }
+      try {
+        const response = await fetch('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadAdmins();
+          document.getElementById('addAdminForm').reset();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao adicionar administrador.');
+      }
+    });
+
+    // Edita administrador
+    window.editAdmin = (id, username, email) => {
+      const modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.innerHTML = `
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Editar Administrador</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <form id="editAdminForm">
+                <div class="mb-3">
+                  <label for="editAdminUsername" class="form-label">Nome</label>
+                  <input type="text" class="form-control" id="editAdminUsername" value="${username}" required>
+                </div>
+                <div class="mb-3">
+                  <label for="editAdminEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="editAdminEmail" value="${email}" required>
+                </div>
+                <div class="mb-3">
+                  <label for="editAdminPassword" class="form-label">Nova Senha (opcional)</label>
+                  <input type="password" class="form-control" id="editAdminPassword">
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      const bsModal = new bootstrap.Modal(modal);
+      bsModal.show();
+
+      document.getElementById('editAdminForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newUsername = document.getElementById('editAdminUsername').value.trim();
+        const newEmail = document.getElementById('editAdminEmail').value.trim();
+        const newPassword = document.getElementById('editAdminPassword').value.trim();
+        try {
+          const response = await fetch(`/api/admin/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: newUsername, email: newEmail, password: newPassword || undefined })
+          });
+          const result = await response.json();
+          if (response.ok) {
+            showNotification('success', result.message);
+            loadAdmins();
+            bsModal.hide();
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (error) {
+          showNotification('error', error.message || 'Erro ao editar administrador.');
+        }
+      });
+
+      modal.addEventListener('hidden.bs.modal', () => modal.remove());
+    };
+
+    // Exclui administrador
+    window.deleteAdmin = async (userId) => {
+      try {
+        const response = await fetch(`/api/admin/${userId}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+        if (response.ok) {
+          showNotification('success', result.message);
+          loadAdmins();
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (error) {
+        showNotification('error', error.message || 'Erro ao excluir administrador.');
       }
     };
 
@@ -320,6 +473,7 @@
     // Inicializa a página
     socket.emit('registerUser', { userId: localStorage.getItem('userId'), username: localStorage.getItem('user') });
     updateNavbar();
+    loadUsers();
     loadAdmins();
     loadQueries();
   </script>

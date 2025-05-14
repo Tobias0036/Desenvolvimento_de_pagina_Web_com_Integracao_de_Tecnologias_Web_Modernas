@@ -23,6 +23,7 @@ async function readDB() {
 async function writeDB(data) {
   try {
     await fs.writeFile(dbPath, JSON.stringify(data, null, 2));
+    console.log('DB atualizado com sucesso');
   } catch (error) {
     console.error('Erro ao escrever DB:', error);
     throw error;
@@ -42,17 +43,51 @@ router.get('/admin/:userId', async (req, res) => {
 // Rota de login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    console.log('Tentativa de login sem email ou senha');
+    return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+  }
   const db = await readDB();
   const user = db.users.find(u => u.email === email && u.password === password);
   if (!user) {
+    console.log(`Tentativa de login falhou: email=${email}`);
     return res.status(401).json({ error: 'Credenciais inválidas' });
   }
+  console.log(`Login bem-sucedido: userId=${user.id}, username=${user.username}`);
   res.json({ message: 'Login bem-sucedido', userId: user.id, username: user.username, isAdmin: user.isAdmin });
 });
 
 // Rota de registro
 router.post('/register', async (req, res) => {
-  const { username, email, password, isAdmin } = req.body;
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    console.log('Tentativa de registro sem campos obrigatórios');
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+  }
+  const db = await readDB();
+  if (db.users.find(u => u.email === email)) {
+    console.log(`Tentativa de registro com email existente: ${email}`);
+    return res.status(400).json({ error: 'Email já registrado' });
+  }
+  const user = {
+    id: uuidv4(),
+    username,
+    email,
+    password,
+    isAdmin: false
+  };
+  db.users.push(user);
+  await writeDB(db);
+  console.log(`Usuário registrado: userId=${user.id}, username=${user.username}, email=${user.email}`);
+  res.json({ message: 'Usuário registrado', userId: user.id, username: user.username, isAdmin: user.isAdmin });
+});
+
+// Adiciona um novo administrador
+router.post('/admin', async (req, res) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+  }
   const db = await readDB();
   if (db.users.find(u => u.email === email)) {
     return res.status(400).json({ error: 'Email já registrado' });
@@ -62,11 +97,44 @@ router.post('/register', async (req, res) => {
     username,
     email,
     password,
-    isAdmin: isAdmin || false
+    isAdmin: true
   };
   db.users.push(user);
   await writeDB(db);
-  res.json({ message: 'Usuário registrado', userId: user.id, username: user.username, isAdmin: user.isAdmin });
+  res.json({ message: 'Administrador adicionado', userId: user.id, username: user.username });
+});
+
+// Edita um administrador
+router.put('/admin/:id', async (req, res) => {
+  const { username, email, password } = req.body;
+  if (!username || !email) {
+    return res.status(400).json({ error: 'Nome e email são obrigatórios' });
+  }
+  const db = await readDB();
+  const user = db.users.find(u => u.id === req.params.id && u.isAdmin);
+  if (!user) {
+    return res.status(404).json({ error: 'Administrador não encontrado' });
+  }
+  if (db.users.find(u => u.email === email && u.id !== req.params.id)) {
+    return res.status(400).json({ error: 'Email já registrado' });
+  }
+  user.username = username;
+  user.email = email;
+  if (password) user.password = password;
+  await writeDB(db);
+  res.json({ message: 'Administrador atualizado' });
+});
+
+// Exclui um administrador
+router.delete('/admin/:id', async (req, res) => {
+  const db = await readDB();
+  const initialLength = db.users.length;
+  db.users = db.users.filter(u => u.id !== req.params.id || !u.isAdmin);
+  if (db.users.length === initialLength) {
+    return res.status(404).json({ error: 'Administrador não encontrado' });
+  }
+  await writeDB(db);
+  res.json({ message: 'Administrador excluído' });
 });
 
 // Lista todos os usuários

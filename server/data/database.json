@@ -15,11 +15,25 @@
       "role": "user"
     },
     {
+      "id": 2,
+      "username": "Agostinho",
+      "email": "agostinho@gmail.com",
+      "password": "1234",
+      "role": "user"
+    },
+    {
       "id": "6b04f321-f4bb-4e95-9439-af66c1eaf6bd",
       "username": "Esmael Chande",
       "email": "esmaelchande@gmail.com",
       "password": "admin123",
       "isAdmin": true
+    },
+    {
+      "id": "81d46405-c2f3-4c5e-aec0-2cdfe4ae612c",
+      "username": "esilio",
+      "email": "esilio@gmail.com",
+      "password": "1234",
+      "isAdmin": false
     }
   ],
   "reports": [
@@ -28,6 +42,12 @@
       "userId": "1",
       "goal": "comprar carro",
       "createdAt": "2025-05-13T14:37:02.324Z"
+    },
+    {
+      "id": "7acaeeda-1d50-49d0-b3c3-d9174964511b",
+      "userId": "1",
+      "goal": "comprar casa",
+      "createdAt": "2025-05-14T10:07:46.812Z"
     }
   ],
   "definitions": [

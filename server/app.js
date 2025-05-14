@@ -8,8 +8,13 @@ const routes = require('./routes');
 const app = express();
 // Cria o servidor HTTP
 const server = http.createServer(app);
-// Inicializa o Socket.IO para comunicação em tempo real
-const io = socketIo(server);
+// Inicializa o Socket.IO com configurações para o Render
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+});
 
 // Middleware para parsing de JSON
 app.use(express.json());
@@ -37,7 +42,6 @@ const messageCounts = new Map();
 
 // Evento de conexão do Socket.IO
 io.on('connection', (socket) => {
-  // Loga a conexão de um novo usuário
   console.log('Usuário conectado:', socket.id);
 
   // Registra usuário logado ou visitante
@@ -47,6 +51,7 @@ io.on('connection', (socket) => {
     if (!messageCounts.has(identifier)) {
       messageCounts.set(identifier, 0);
     }
+    console.log(`Usuário registrado: ${identifier}, username=${username || guestName}`);
     // Emite lista de usuários online com nomes
     io.emit('updateUserList', {
       online: Array.from(onlineUsers.entries()).map(([id, data]) => ({ id, username: data.username })),

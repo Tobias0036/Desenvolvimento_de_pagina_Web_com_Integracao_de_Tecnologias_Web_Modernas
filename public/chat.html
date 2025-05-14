@@ -102,6 +102,8 @@
       localStorage.removeItem('user');
       localStorage.removeItem('userId');
       localStorage.removeItem('isAdmin');
+      localStorage.removeItem('chatMessages');
+      localStorage.removeItem('replyCount'); // Remove contador ao fazer logout
       window.location.href = 'index.html';
     }
 
@@ -113,9 +115,28 @@
     const chatForm = document.getElementById('chatForm');
     const messageInput = document.getElementById('message');
     const exhaustedMessage = document.getElementById('exhaustedMessage');
-    let replyCount = 0;
+    let replyCount = parseInt(localStorage.getItem('replyCount') || '0'); // Carrega contador do localStorage
     let userName = localStorage.getItem('user') || null;
     const maxReplies = 6;
+
+    // Carrega mensagens do localStorage
+    function loadMessages() {
+      const messages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+      messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = `message ${msg.user === userName ? 'user' : 'bot'}`;
+        div.textContent = `${msg.user}: ${msg.text}`;
+        chatBox.appendChild(div);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Salva mensagem no localStorage
+    function saveMessage(msg) {
+      const messages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+      messages.push(msg);
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    }
 
     // Respostas automáticas do bot
     const autoReplies = [
@@ -155,13 +176,36 @@
       return null;
     }
 
-    // Verifica se o usuário está logado
-    if (userName) {
-      guestNameSection.classList.add('d-none');
-      chatBox.classList.remove('d-none');
-      chatForm.classList.remove('d-none');
-      socket.emit('registerUser', { userId: localStorage.getItem('userId'), username: userName });
+    // Função para configurar o estado do chat
+    function setupChatState() {
+      if (userName) {
+        guestNameSection.classList.add('d-none');
+        chatBox.classList.remove('d-none');
+        if (replyCount >= maxReplies) {
+          if (localStorage.getItem('userId')) {
+            // Usuário logado: conversa com administrador
+            chatForm.classList.remove('d-none');
+            const adminMsg = {
+              text: 'Agora você está conversando com o administrador. Envie sua mensagem!',
+              user: 'Sistema'
+            };
+            socket.emit('chatMessage', adminMsg);
+          } else {
+            // Usuário não logado: exibe mensagem de login
+            chatForm.classList.add('d-none');
+            exhaustedMessage.classList.remove('d-none');
+          }
+        } else {
+          // Usuário logado, mas não esgotou mensagens
+          chatForm.classList.remove('d-none');
+        }
+        socket.emit('registerUser', { userId: localStorage.getItem('userId'), username: userName });
+        loadMessages();
+      }
     }
+
+    // Verifica estado inicial do chat
+    setupChatState();
 
     // Manipula envio do nome do visitante
     guestNameForm.addEventListener('submit', (e) => {
@@ -175,16 +219,21 @@
       chatBox.classList.remove('d-none');
       chatForm.classList.remove('d-none');
       socket.emit('registerUser', { guestName: userName, username: userName });
-      socket.emit('chatMessage', { user: 'Bot', text: `Olá, ${userName}! Como posso ajudar com suas finanças?` });
+      const welcomeMsg = { user: 'Bot', text: `Olá, ${userName}! Como posso ajudar com suas finanças?` };
+      socket.emit('chatMessage', welcomeMsg);
+      saveMessage(welcomeMsg);
     });
 
     // Escuta mensagens do servidor
     socket.on('chatMessage', (msg) => {
       const div = document.createElement('div');
-      div.className = `message ${msg.user === userName || msg.user === 'Administrador' ? 'user' : 'bot'}`;
+      // Mensagens do administrador e do bot aparecem no lado 'bot' (esquerda)
+      div.className = `message ${msg.user === userName ? 'user' : 'bot'}`;
       div.textContent = `${msg.user}: ${msg.text}`;
       chatBox.appendChild(div);
       chatBox.scrollTop = chatBox.scrollHeight;
+      saveMessage(msg);
+      console.log(`Mensagem recebida: ${msg.user}: ${msg.text}`);
     });
 
     // Manipula envio de mensagens do usuário
@@ -193,10 +242,12 @@
       const message = messageInput.value.trim();
       if (!message) return;
 
-      socket.emit('chatMessage', { text: message, user: userName });
+      const msg = { text: message, user: userName };
+      socket.emit('chatMessage', msg);
       messageInput.value = '';
+      console.log(`Mensagem enviada: ${userName}: ${message}`);
 
-      // Respostas do bot para até 6 mensagens
+      // Respostas do bot apenas se não esgotou o limite
       if (replyCount < maxReplies) {
         setTimeout(() => {
           let reply = autoReplies[replyCount];
@@ -206,23 +257,27 @@
             const financialReply = getFinancialResponse(message);
             reply = financialReply || reply;
           }
-          socket.emit('chatMessage', { text: reply, user: 'Bot' });
+          const botMsg = { text: reply, user: 'Bot' };
+          socket.emit('chatMessage', botMsg);
           replyCount++;
+          localStorage.setItem('replyCount', replyCount); // Persiste contador
           if (replyCount === maxReplies) {
             if (!localStorage.getItem('userId')) {
               // Usuários não logados veem mensagem de login
               chatForm.classList.add('d-none');
               exhaustedMessage.classList.remove('d-none');
-              socket.emit('chatMessage', {
+              const exhaustedMsg = {
                 text: 'Conversa com bot esgotada. Faça login ou cadastre-se para falar com o administrador.',
                 user: 'Bot'
-              });
+              };
+              socket.emit('chatMessage', exhaustedMsg);
             } else {
               // Usuários logados continuam conversando com o admin
-              socket.emit('chatMessage', {
+              const adminMsg = {
                 text: 'Agora você está conversando com o administrador. Envie sua mensagem!',
                 user: 'Sistema'
-              });
+              };
+              socket.emit('chatMessage', adminMsg);
             }
           }
         }, 500);
